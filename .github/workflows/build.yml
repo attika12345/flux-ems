@@ -23,17 +23,7 @@ jobs:
           pip install pyinstaller
 
       - name: Build Windows EXE
-        run: |
-          pyinstaller --onefile --windowed --name EMS \
-            --collect-all serial \
-            --collect-all requests \
-            --collect-all geopy \
-            --collect-all tzlocal \
-            --collect-all pytz \
-            --collect-all cryptography \
-            --collect-all numpy \
-            --collect-all pandas \
-            ems_full_geo.py
+        run: pyinstaller --onefile --windowed --name EMS --collect-all serial --collect-all requests --collect-all geopy --collect-all tzlocal --collect-all pytz --collect-all cryptography --collect-all numpy --collect-all pandas ems_full_geo.py
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
