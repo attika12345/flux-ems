@@ -18,10 +18,22 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install pyinstaller
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller
 
       - name: Build Windows EXE
-        run: pyinstaller --onefile --windowed --name EMS ems_full_geo.py
+        run: |
+          pyinstaller --onefile --windowed --name EMS \
+            --collect-all serial \
+            --collect-all requests \
+            --collect-all geopy \
+            --collect-all tzlocal \
+            --collect-all pytz \
+            --collect-all cryptography \
+            --collect-all numpy \
+            --collect-all pandas \
+            ems_full_geo.py
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
@@ -40,10 +52,22 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install pyinstaller
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller
 
       - name: Build Linux binary
-        run: pyinstaller --onefile --name EMS ems_full_geo.py
+        run: |
+          pyinstaller --onefile --name EMS \
+            --collect-all serial \
+            --collect-all requests \
+            --collect-all geopy \
+            --collect-all tzlocal \
+            --collect-all pytz \
+            --collect-all cryptography \
+            --collect-all numpy \
+            --collect-all pandas \
+            ems_full_geo.py
 
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
@@ -64,9 +88,19 @@ jobs:
       - name: Run ARM container and build
         run: |
           docker run --rm -v ${{ github.workspace }}:/src --platform linux/arm/v7 python:3.11 bash -c "
+            pip install -r /src/requirements.txt &&
             pip install pyinstaller &&
             cd /src &&
-            pyinstaller --onefile --name EMS-pi ems_full_geo.py
+            pyinstaller --onefile --name EMS-pi \
+              --collect-all serial \
+              --collect-all requests \
+              --collect-all geopy \
+              --collect-all tzlocal \
+              --collect-all pytz \
+              --collect-all cryptography \
+              --collect-all numpy \
+              --collect-all pandas \
+              ems_full_geo.py
           "
 
       - name: Upload Raspberry Pi artifact
