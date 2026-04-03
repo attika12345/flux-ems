@@ -24,7 +24,7 @@ jobs:
         run: pyinstaller --onefile --windowed --name EMS ems_full_geo.py
 
       - name: Upload Windows artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: EMS-windows
           path: dist/EMS.exe
@@ -46,7 +46,7 @@ jobs:
         run: pyinstaller --onefile --name EMS ems_full_geo.py
 
       - name: Upload Linux artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: EMS-linux
           path: dist/EMS
@@ -70,7 +70,7 @@ jobs:
           "
 
       - name: Upload Raspberry Pi artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: EMS-pi
           path: dist/EMS-pi
@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: ./artifacts
 
