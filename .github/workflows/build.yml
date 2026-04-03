@@ -19,8 +19,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
           pip install pyinstaller
+          pip install pyserial requests geopy tzlocal pytz cryptography numpy pandas pyyaml
 
       - name: Build Windows EXE
         run: pyinstaller --onefile --windowed --name EMS --collect-all serial --collect-all requests --collect-all geopy --collect-all tzlocal --collect-all pytz --collect-all cryptography --collect-all numpy --collect-all pandas ems_full_geo.py
@@ -43,8 +43,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
           pip install pyinstaller
+          pip install pyserial requests geopy tzlocal pytz cryptography numpy pandas pyyaml
 
       - name: Build Linux binary
         run: |
@@ -78,8 +78,8 @@ jobs:
       - name: Run ARM container and build
         run: |
           docker run --rm -v ${{ github.workspace }}:/src --platform linux/arm/v7 python:3.11 bash -c "
-            pip install -r /src/requirements.txt &&
             pip install pyinstaller &&
+            pip install pyserial requests geopy tzlocal pytz cryptography numpy pandas pyyaml &&
             cd /src &&
             pyinstaller --onefile --name EMS-pi \
               --collect-all serial \
