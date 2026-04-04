@@ -1,21 +1,15 @@
-name: Build EMS Linux + Raspberry (append to existing release)
+name: Build EMS Linux + Raspberry (append to manual-1)
 
 on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Existing release tag (pl. manual-1)"
-        required: true
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 jobs:
 
   build-linux:
     runs-on: ubuntu-latest
-    outputs:
-      linux_path: ${{ steps.upload.outputs.artifact_path }}
     steps:
       - uses: actions/checkout@v3
 
@@ -44,7 +38,6 @@ jobs:
             ems_full_geo.py
 
       - name: Upload Linux artifact
-        id: upload
         uses: actions/upload-artifact@v4
         with:
           name: EMS-linux
@@ -53,37 +46,35 @@ jobs:
 
   build-raspberry:
     runs-on: ubuntu-latest
-    outputs:
-      pi_path: ${{ steps.upload.outputs.artifact_path }}
     steps:
       - uses: actions/checkout@v3
 
-      - name: Enable ARM cross-compile
+      - name: Install Python for ARM
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-user-static binfmt-support
+          sudo apt-get install -y python3 python3-pip python3-venv
 
-      - name: Run ARM container and build
+      - name: Install dependencies
         run: |
-          docker run --rm -v ${{ github.workspace }}:/src --platform linux/arm/v7 python:3.11 bash -c "
-            pip install pyinstaller &&
-            pip install pyserial requests geopy tzlocal pytz cryptography numpy pandas pyyaml &&
-            cd /src &&
-            pyinstaller --onefile --name EMS-pi \
-              --collect-all serial \
-              --collect-all requests \
-              --collect-all geopy \
-              --collect-all tzlocal \
-              --collect-all pytz \
-              --collect-all cryptography \
-              --collect-all numpy \
-              --collect-all pandas \
-              --collect-all yaml \
-              ems_full_geo.py
-          "
+          python3 -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install pyserial requests geopy tzlocal pytz cryptography numpy pandas pyyaml
+
+      - name: Build Raspberry Pi binary
+        run: |
+          pyinstaller --onefile --name EMS-pi \
+            --collect-all serial \
+            --collect-all requests \
+            --collect-all geopy \
+            --collect-all tzlocal \
+            --collect-all pytz \
+            --collect-all cryptography \
+            --collect-all numpy \
+            --collect-all pandas \
+            --collect-all yaml \
+            ems_full_geo.py
 
       - name: Upload Raspberry Pi artifact
-        id: upload
         uses: actions/upload-artifact@v4
         with:
           name: EMS-pi
@@ -102,7 +93,7 @@ jobs:
       - name: Upload to existing release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.event.inputs.tag }}
+          tag_name: manual-1
           files: |
             artifacts/EMS-linux/EMS
             artifacts/EMS-pi/EMS-pi
