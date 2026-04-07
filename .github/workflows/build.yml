@@ -18,7 +18,8 @@ jobs:
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install pyinstaller pyserial requests geopy tzlocal pytz cryptography numpy pandas pyyaml
+          python3 -m pip install --only-binary=:all: cryptography numpy pandas
+          python3 -m pip install pyinstaller pyserial requests geopy tzlocal pytz pyyaml
 
       - name: Build Linux binary
         run: |
@@ -42,7 +43,7 @@ jobs:
 
 
   build-raspberry:
-    runs-on: ubuntu-22.04-arm64   # ARM RUNNER = működő PyInstaller
+    runs-on: ubuntu-22.04-arm64
     steps:
       - uses: actions/checkout@v3
 
@@ -54,7 +55,8 @@ jobs:
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install pyinstaller pyserial requests geopy tzlocal pytz cryptography numpy pandas pyyaml
+          python3 -m pip install --only-binary=:all: cryptography numpy pandas
+          python3 -m pip install pyinstaller pyserial requests geopy tzlocal pytz pyyaml
 
       - name: Build Raspberry Pi binary
         run: |
