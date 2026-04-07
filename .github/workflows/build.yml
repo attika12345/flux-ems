@@ -7,21 +7,22 @@ on:
   workflow_dispatch:
 
 jobs:
+
   build-linux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      
+
       - name: Install dependencies
         run: |
-          python3 -m pip install --upgrade pip
+          python3 -m pip install --upgrade pip setuptools wheel
           python3 -m pip install pyinstaller pyserial requests geopy tzlocal pytz cryptography numpy pandas pyyaml
-      
+
       - name: Build Linux binary
         run: |
           python3 -m pyinstaller --onefile --name EMS \
@@ -35,28 +36,29 @@ jobs:
             --collect-all pandas \
             --collect-all yaml \
             ems_full_geo.py
-      
+
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
         with:
           name: EMS-linux
           path: dist/EMS
 
+
   build-raspberry:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04-arm64   # REAL ARM RUNNER
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      
+
       - name: Install dependencies
         run: |
-          python3 -m pip install --upgrade pip
+          python3 -m pip install --upgrade pip setuptools wheel
           python3 -m pip install pyinstaller pyserial requests geopy tzlocal pytz cryptography numpy pandas pyyaml
-      
+
       - name: Build Raspberry Pi binary
         run: |
           python3 -m pyinstaller --onefile --name EMS-pi \
@@ -70,12 +72,13 @@ jobs:
             --collect-all pandas \
             --collect-all yaml \
             ems_full_geo.py
-      
+
       - name: Upload Raspberry Pi artifact
         uses: actions/upload-artifact@v4
         with:
           name: EMS-pi
           path: dist/EMS-pi
+
 
   attach-to-release:
     needs: [build-linux, build-raspberry]
@@ -85,7 +88,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ./artifacts
-      
+
       - name: Upload to release
         uses: softprops/action-gh-release@v1
         with:
