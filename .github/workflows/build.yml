@@ -1,4 +1,4 @@
-name: Build EMS Linux + Raspberry
+name: Build EMS
 
 on:
   workflow_dispatch:
@@ -14,13 +14,8 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      
-      - name: Install PyInstaller and deps
-        run: python3 -m pip install pyinstaller pyserial requests geopy tzlocal pytz cryptography numpy pandas pyyaml
-      
-      - name: Build Linux
-        run: python3 -m pyinstaller --onefile --name EMS --collect-all serial --collect-all requests --collect-all geopy --collect-all tzlocal --collect-all pytz --collect-all cryptography --collect-all numpy --collect-all pandas --collect-all yaml ems_full_geo.py
-      
+      - run: python3 -m pip install pyinstaller pyserial requests geopy tzlocal pytz cryptography numpy pandas pyyaml
+      - run: python3 -m pyinstaller --onefile --name EMS --collect-all serial --collect-all requests --collect-all geopy --collect-all tzlocal --collect-all pytz --collect-all cryptography --collect-all numpy --collect-all pandas --collect-all yaml ems_full_geo.py
       - uses: actions/upload-artifact@v4
         with:
           name: EMS-linux
@@ -33,13 +28,8 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      
-      - name: Install PyInstaller and deps
-        run: python3 -m pip install pyinstaller pyserial requests geopy tzlocal pytz cryptography numpy pandas pyyaml
-      
-      - name: Build Raspberry
-        run: python3 -m pyinstaller --onefile --name EMS-pi --collect-all serial --collect-all requests --collect-all geopy --collect-all tzlocal --collect-all pytz --collect-all cryptography --collect-all numpy --collect-all pandas --collect-all yaml ems_full_geo.py
-      
+      - run: python3 -m pip install pyinstaller pyserial requests geopy tzlocal pytz cryptography numpy pandas pyyaml
+      - run: python3 -m pyinstaller --onefile --name EMS-pi --collect-all serial --collect-all requests --collect-all geopy --collect-all tzlocal --collect-all pytz --collect-all cryptography --collect-all numpy --collect-all pandas --collect-all yaml ems_full_geo.py
       - uses: actions/upload-artifact@v4
         with:
           name: EMS-pi
@@ -52,7 +42,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
-      
       - uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
