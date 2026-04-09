@@ -1,4 +1,4 @@
-name: Build EMS Linux + Raspberry for v1.0.1
+name: Build EMS Linux + Raspberry for v1.0
 
 on:
   workflow_dispatch:
@@ -88,10 +88,10 @@ jobs:
         with:
           path: ./artifacts
 
-      - name: Upload to release v1.0.1
+      - name: Upload to release v1.0
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: "v1.0.1"
+          tag_name: "v1.0"
           files: |
             artifacts/EMS-linux/EMS
             artifacts/EMS-pi/EMS-pi
