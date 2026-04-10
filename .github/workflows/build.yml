@@ -15,7 +15,11 @@ jobs:
 
       - run: python3 -m pip install --upgrade pip setuptools wheel
 
-      - run: python3 -m pip install pyinstaller pyserial requests geopy tzlocal pytz cryptography numpy pandas pyyaml
+      - run: python3 -m pip install --only-binary=:all: cryptography numpy pandas
+
+      - run: python3 -m pip install pyinstaller pyserial requests geopy tzlocal pytz pyyaml
+
+      - run: python3 -m pyinstaller --version
 
       - run: |
           python3 -m pyinstaller --onefile --name EMS \
