@@ -1,45 +1,21 @@
-name: FluxEmsPro Raspberry Pi Build
-
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+name: FluxEmsPro Pi Build (Stable)
+on: [push, workflow_dispatch]
 
 jobs:
   build-arm64:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Build on ARM64 Emulator
-        uses: uraimo/run-on-arch-action@v2
+      - name: Build ARM64 Binary
+        uses: pguyot/arm-runner-action@v2
         with:
-          arch: aarch64
-          distro: ubuntu22.04
-          githubToken: ${{ github.token }}
-          
-          install: |
-            apt-get update
-            apt-get install -y python3-pip build-essential libssl-dev python3-dev patchelf
+          base_image: raspios_lite_arm64:latest
+          cpu: cortex-a72
+          commands: |
+            apt-get update && apt-get install -y python3-pip build-essential libssl-dev patchelf
             pip3 install nuitka flask requests pyserial pytz cryptography
-            
-          run: |
-            python3 -m nuitka \
-              --standalone \
-              --onefile \
-              --include-package=flask \
-              --include-package=cryptography \
-              --include-package=serial \
-              --include-package=requests \
-              --include-package=pytz \
-              --output-filename=FluxEmsPro_ARM64.bin \
-              ems_full_geo.py
-
-      - name: Upload ARM Artifact
-        uses: actions/upload-artifact@v4
+            python3 -m nuitka --standalone --onefile --jobs=1 --output-filename=FluxEmsPro_ARM64.bin ems_full_geo.py
+      - uses: actions/upload-artifact@v4
         with:
-          name: FluxEmsPro-RaspberryPi-Binary
-          path: ./*.bin
+          name: FluxEmsPro-Pi
+          path: FluxEmsPro_ARM64.bin
