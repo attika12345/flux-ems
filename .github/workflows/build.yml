@@ -1,24 +1,31 @@
 name: FluxEmsPro Linux Build
-on: [push]
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: # Így manuálisan is elindíthatod gombbal
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Install Libs
+      - name: Install dependencies
         run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential python3-dev libssl-dev
           pip install nuitka flask requests pyserial pytz cryptography
-          # Ha van requirements.txt, akkor: pip install -r requirements.txt
+          # Ha van requirements.txt, használd ezt is:
+          # if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Nuitka Build
+      - name: Build with Nuitka
         run: |
           python -m nuitka \
             --standalone \
@@ -26,12 +33,14 @@ jobs:
             --include-package=flask \
             --include-package=cryptography \
             --include-package=pyserial \
+            --include-package=requests \
+            --include-package=pytz \
             --output-filename=FluxEmsPro.bin \
             --output-dir=dist \
-            main.py
+            ems_full_geo.py
 
-      - name: Upload
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: FluxEmsPro-Linux
+          name: FluxEmsPro-Linux-Binary
           path: dist/FluxEmsPro.bin
