@@ -1,36 +1,37 @@
-name: Build EMS Linux
-
-on:
-  workflow_dispatch:
+name: FluxEmsPro Linux Build
+on: [push]
 
 jobs:
-  build-linux:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: '3.10'
 
-      - run: python3 -m pip install --upgrade pip setuptools wheel
+      - name: Install Libs
+        run: |
+          pip install nuitka flask requests pyserial pytz cryptography
+          # Ha van requirements.txt, akkor: pip install -r requirements.txt
 
-      - run: python3 -m pip install pyinstaller pyserial requests geopy tzlocal pytz cryptography numpy pandas pyyaml
+      - name: Nuitka Build
+        run: |
+          python -m nuitka \
+            --standalone \
+            --onefile \
+            --include-package=flask \
+            --include-package=cryptography \
+            --include-package=pyserial \
+            --output-filename=FluxEmsPro.bin \
+            --output-dir=dist \
+            main.py
 
-      - run: |
-          python3 -m pyinstaller --onefile --name EMS \
-            --collect-all serial \
-            --collect-all requests \
-            --collect-all geopy \
-            --collect-all tzlocal \
-            --collect-all pytz \
-            --collect-all cryptography \
-            --collect-all numpy \
-            --collect-all pandas \
-            --collect-all yaml \
-            ems_full_geo.py
-
-      - uses: actions/upload-artifact@v4
+      - name: Upload
+        uses: actions/upload-artifact@v4
         with:
-          name: EMS-linux
-          path: dist/EMS
+          name: FluxEmsPro-Linux
+          path: dist/FluxEmsPro.bin
