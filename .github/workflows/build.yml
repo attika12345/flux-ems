@@ -1,21 +1,44 @@
-name: FluxEmsPro Pi Build (Stable)
-on: [push, workflow_dispatch]
+name: FluxEmsPro Linux Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  build-arm64:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Build ARM64 Binary
-        uses: pguyot/arm-runner-action@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          base_image: raspios_lite_arm64:latest
-          cpu: cortex-a72
-          commands: |
-            apt-get update && apt-get install -y python3-pip build-essential libssl-dev patchelf
-            pip3 install nuitka flask requests pyserial pytz cryptography
-            python3 -m nuitka --standalone --onefile --jobs=1 --output-filename=FluxEmsPro_ARM64.bin ems_full_geo.py
-      - uses: actions/upload-artifact@v4
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential python3-dev libssl-dev
+          pip install nuitka flask requests pyserial pytz cryptography
+
+      - name: Build with Nuitka
+        run: |
+          python -m nuitka \
+            --standalone \
+            --onefile \
+            --include-package=flask \
+            --include-package=cryptography \
+            --include-package=serial \
+            --include-package=requests \
+            --include-package=pytz \
+            --output-filename=FluxEmsPro.bin \
+            --output-dir=dist \
+            ems_full_geo.py
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: FluxEmsPro-Pi
-          path: FluxEmsPro_ARM64.bin
+          name: FluxEmsPro-Linux-Binary
+          path: dist/FluxEmsPro.bin
